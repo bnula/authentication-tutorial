@@ -9,7 +9,7 @@ const port = 4000;
 
 const _ = require("lodash");
 
-const encrypt = require("mongoose-encryption");
+const md5 = require("md5");
 
 const mongoose = require("mongoose");
 
@@ -28,7 +28,6 @@ const userSchema = mongoose.Schema({
 });
 
 const secret = process.env.SECRET;
-userSchema.plugin(encrypt, {secret: secret, encryptedFields: ["password"]});
 
 const User = mongoose.model("User", userSchema);
 
@@ -43,7 +42,7 @@ app.route("/login")
    .post(async (req, res) => {
       const body = req.body;
       const userName = (body.username).toUpperCase();
-      const password = body.password;
+      const password = md5(body.password);
       await User.findOne({userName: userName}, (err, user) => {
          if (err) {
             console.log(err);
@@ -67,7 +66,7 @@ app.route("/register")
    .post(async (req, res) => {
       const body = req.body;
       const userName = (body.username).toUpperCase();
-      const password = body.password;
+      const password = md5(body.password);
       const newUser = new User ({
          userName: userName,
          password: password
